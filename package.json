@@ -1,0 +1,25 @@
+{
+    "name": "typing-game",
+    "version": "1.0.0",
+    "description": "",
+    "main": "server.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "server": "nodemon --exec babel-node server.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "socket.io": "^3.0.3",
+        "uuid": "^8.3.1"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.12.8",
+        "@babel/core": "^7.12.9",
+        "@babel/node": "^7.12.6",
+        "@babel/preset-env": "^7.12.7",
+        "nodemon": "^2.0.6"
+    }
+}
