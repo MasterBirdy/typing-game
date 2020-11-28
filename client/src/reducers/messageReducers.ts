@@ -6,10 +6,10 @@ export interface MessageStateInterface {
 }
 
 export const initialState: MessageStateInterface = {
-    message: "test",
+    message: "",
 };
 
-export const messageReducer = (state = initialState, action: MessageActionTypes) => {
+export const messageReducer = (state = initialState, action: MessageActionTypes): MessageStateInterface => {
     switch (action.type) {
         case SET_MESSAGE:
             return { ...state, message: action.payload };

@@ -8,7 +8,7 @@ export const initialState: UserStateInterface = {
     users: [],
 };
 
-export const usersReducer = (state = initialState, action: UserActionTypes) => {
+export const usersReducer = (state = initialState, action: UserActionTypes): UserStateInterface => {
     switch (action.type) {
         case SET_USERS_LIST:
             return {

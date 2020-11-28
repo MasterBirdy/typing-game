@@ -1,4 +1,5 @@
 export const SET_STATUS = "SET_STATUS";
+export const CHALLENGE_USER = "CHALLENGE_USER";
 
 export enum Status {
     IDLE = "Idle",
@@ -11,4 +12,9 @@ interface SetStatusAction {
     payload: Status;
 }
 
-export type StatusActionTypes = SetStatusAction;
+interface ChallengeUserAction {
+    type: typeof CHALLENGE_USER;
+    payload: string;
+}
+
+export type StatusActionTypes = SetStatusAction | ChallengeUserAction;

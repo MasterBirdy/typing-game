@@ -11,8 +11,12 @@ const socketConstants = {
     ADD_USER: "add_user",
     DELETE_USER: "delete_user",
     INVITE_USER: "invite_user",
+    USER_INVITED: "user_invited",
+    ACCEPT_INVITE: "accept_invite",
     SET_STATUS: "set_status",
-    PLAY_GAME: "play_game",
+    START_GAME: "start_game",
+    TYPE_CHARACTER: "type_character",
+    GAME_WON: "game_won",
 };
 
 const statusConstants = {
@@ -28,30 +32,63 @@ export const socket = (app) => {
         },
     });
 
-    const { USERS_LIST, ADD_USER, DELETE_USER, INVITE_USER, SET_STATUS, PLAY_GAME } = socketConstants;
+    const {
+        USERS_LIST,
+        ADD_USER,
+        DELETE_USER,
+        INVITE_USER,
+        USER_INVITED,
+        ACCEPT_INVITE,
+        SET_STATUS,
+        START_GAME,
+        TYPE_CHARACTER,
+        GAME_WON,
+    } = socketConstants;
     const { IDLE, WAITING, PLAYING } = statusConstants;
 
     io.on("connection", (socket) => {
         users[socket.id] = socket;
         socket.handshake.status = IDLE;
         socket.handshake.name = `User ${++count}`;
-        io.to(socket.id).emit(USERS_LIST, Object.keys(users));
+        io.to(socket.id).emit(
+            USERS_LIST,
+            Object.keys(users).filter((user) => user !== socket.id)
+        );
         socket.broadcast.emit(ADD_USER, socket.id);
 
         socket.on(INVITE_USER, (invite) => {
-            io.to(socket.id).emit(SET_STATUS, WAITING);
-            setTimeout(() => {
-                io.emit(SET_STATUS, IDLE);
-            }, 1500);
+            socket.handshake.status = WAITING;
+            if (users[invite]) {
+                users[invite].handshake.status = WAITING;
+                io.to(invite).emit(USER_INVITED, socket.id);
+            }
         });
 
-        socket.on(PLAY_GAME, (invite) => {
+        socket.on(ACCEPT_INVITE, (invite) => {
             const roomID = uuidv4();
             const opponentSocket = users[invite];
-            if (opponentSocket && opponentSocket.handshake.status !== IDLE) {
+            if (opponentSocket && opponentSocket.handshake.status === WAITING) {
                 opponentSocket.handshake.room = roomID;
                 socket.handshake.room = roomID;
                 rooms[roomID] = new Room([socket.id, opponentSocket.id]);
+                socket.handshake.status = PLAYING;
+                io.to(socket.id).emit(START_GAME);
+                opponentSocket.handshake.status = PLAYING;
+                io.to(opponentSocket.id).emit(START_GAME);
+            }
+        });
+
+        socket.on(TYPE_CHARACTER, (currentString) => {
+            const roomID = socket.handshake.room;
+            if (socket.handshake.status === PLAYING && roomID && rooms[roomID]) {
+                const room = rooms[roomID];
+                room.addCharacter(currentString, socket.id);
+                console.log(currentString);
+                if (room.hasUserWon(socket.id)) {
+                    Object.keys(room.members).forEach((member) => {
+                        io.to(member).emit(GAME_WON);
+                    });
+                }
             }
         });
 

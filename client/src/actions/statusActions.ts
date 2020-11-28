@@ -1,4 +1,4 @@
-import { SET_STATUS, Status, StatusActionTypes } from "../constants/statusConstants";
+import { SET_STATUS, CHALLENGE_USER, Status, StatusActionTypes } from "../constants/statusConstants";
 
 export const changeStatus = (status: Status): StatusActionTypes => {
     return {
@@ -6,3 +6,14 @@ export const changeStatus = (status: Status): StatusActionTypes => {
         payload: status,
     };
 };
+
+export const challengeUser = (opponent: string): StatusActionTypes => {
+    return {
+        type: CHALLENGE_USER,
+        payload: opponent,
+    };
+};
+
+// place to put status: challenged
+
+export const getChallenged = (opponent: string) => {};
