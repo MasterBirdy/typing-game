@@ -10,9 +10,10 @@ const socketConstants = {
     USERS_LIST: "users_list",
     ADD_USER: "add_user",
     DELETE_USER: "delete_user",
-    INVITE_USER: "invite_user",
-    USER_INVITED: "user_invited",
-    ACCEPT_INVITE: "accept_invite",
+    CHALLENGE_USER: "challenge_user",
+    USER_CHALLENGED: "user_challenged",
+    ACCEPT_CHALLENGE: "accept_challenge",
+    SET_ID: "set_id",
     SET_STATUS: "set_status",
     START_GAME: "start_game",
     TYPE_CHARACTER: "type_character",
@@ -22,6 +23,7 @@ const socketConstants = {
 const statusConstants = {
     IDLE: "Idle",
     WAITING: "Waiting",
+    CHALLENGED: "Challenged",
     PLAYING: "Playing",
 };
 
@@ -36,35 +38,62 @@ export const socket = (app) => {
         USERS_LIST,
         ADD_USER,
         DELETE_USER,
-        INVITE_USER,
-        USER_INVITED,
-        ACCEPT_INVITE,
+        CHALLENGE_USER,
+        USER_CHALLENGED,
+        ACCEPT_CHALLENGE,
         SET_STATUS,
+        SET_ID,
         START_GAME,
         TYPE_CHARACTER,
         GAME_WON,
     } = socketConstants;
-    const { IDLE, WAITING, PLAYING } = statusConstants;
+    const { IDLE, WAITING, CHALLENGED, PLAYING } = statusConstants;
 
     io.on("connection", (socket) => {
         users[socket.id] = socket;
+        io.to(socket.id).emit(SET_ID, socket.id);
         socket.handshake.status = IDLE;
         socket.handshake.name = `User ${++count}`;
         io.to(socket.id).emit(
             USERS_LIST,
-            Object.keys(users).filter((user) => user !== socket.id)
+            Object.keys(users).reduce((acc, cur) => {
+                acc[cur] = { id: cur, name: users[cur].handshake.name, status: users[cur].handshake.status };
+                return acc;
+            }, {})
         );
-        socket.broadcast.emit(ADD_USER, socket.id);
+        socket.broadcast.emit(ADD_USER, {
+            id: socket.id,
+            name: socket.handshake.name,
+            status: socket.handshake.status,
+        });
 
-        socket.on(INVITE_USER, (invite) => {
+        socket.on(CHALLENGE_USER, (invite) => {
             socket.handshake.status = WAITING;
             if (users[invite]) {
-                users[invite].handshake.status = WAITING;
-                io.to(invite).emit(USER_INVITED, socket.id);
+                users[invite].handshake.status = CHALLENGED;
+                io.to(socket.id).emit(
+                    USERS_LIST,
+                    Object.keys(users).reduce((acc, cur) => {
+                        acc[cur] = { id: cur, name: users[cur].handshake.name, status: users[cur].handshake.status };
+                        return acc;
+                    }, {})
+                );
+                socket.broadcast.emit(
+                    USERS_LIST,
+                    Object.keys(users).reduce((acc, cur) => {
+                        acc[cur] = { id: cur, name: users[cur].handshake.name, status: users[cur].handshake.status };
+                        return acc;
+                    }, {})
+                );
+                io.to(invite).emit(USER_CHALLENGED, {
+                    id: socket.id,
+                    name: socket.handshake.name,
+                    status: socket.handshake.status,
+                });
             }
         });
 
-        socket.on(ACCEPT_INVITE, (invite) => {
+        socket.on(ACCEPT_CHALLENGE, (invite) => {
             const roomID = uuidv4();
             const opponentSocket = users[invite];
             if (opponentSocket && opponentSocket.handshake.status === WAITING) {
@@ -83,7 +112,6 @@ export const socket = (app) => {
             if (socket.handshake.status === PLAYING && roomID && rooms[roomID]) {
                 const room = rooms[roomID];
                 room.addCharacter(currentString, socket.id);
-                console.log(currentString);
                 if (room.hasUserWon(socket.id)) {
                     Object.keys(room.members).forEach((member) => {
                         io.to(member).emit(GAME_WON);

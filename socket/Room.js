@@ -1,7 +1,7 @@
 class Room {
     constructor(members) {
         this.members = members.reduce((acc, cur) => {
-            acc[cur] = { currentString: "", characters: 0 };
+            acc[cur] = { currentString: "", apm: 0 };
             return acc;
         }, {});
         this.timer = Date.now();
@@ -12,7 +12,12 @@ class Room {
     addCharacter(string, id) {
         if (this.members[id]) {
             this.members[id].currentString = string;
-            this.members[id].characters++;
+        }
+    }
+
+    changeAPM(number, id) {
+        if (this.members[id]) {
+            this.members[id].apm = number;
         }
     }
 

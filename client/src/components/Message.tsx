@@ -1,21 +1,24 @@
 import * as React from "react";
 import styled from "styled-components";
 
-enum messageType {
+export enum messageType {
     error = "error",
     info = "info",
 }
 
 export interface MessageProps {
-    message: string;
     type?: messageType;
 }
 
-const Message: React.FC<MessageProps> = ({ message, type = messageType.info }) => {
-    return <MessageBox type={type}>{message}</MessageBox>;
+const Message: React.FC<MessageProps> = ({ type = messageType.info, children }) => {
+    return <MessageBox type={type}>{children}</MessageBox>;
 };
 
 const MessageBox = styled.div<{ type: messageType }>`
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-style: solid;
     border-width: 2px;
     border-radius: 5px;
@@ -24,7 +27,7 @@ const MessageBox = styled.div<{ type: messageType }>`
     background-color: #e2e3e5;
     font-family: Lato, sans-serif;
     color: #383d41;
-    padding: 1rem;
+    padding: 0.5rem 1.25rem 0.5rem;
 `;
 
 export default Message;

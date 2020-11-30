@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { SocketContext } from "../context/SocketContext";
 import styled from "styled-components";
 import { Container } from "../elements/components";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { ApplicationState } from "../store";
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -26,24 +26,22 @@ const Game: React.FC<GameProps> = () => {
 
     return (
         <GameContainer>
-            <div>
-                <TypingHeader>Typing Prompt</TypingHeader>
-                <TypingPrompt>{prompt}</TypingPrompt>
-                <TextInput
-                    onPaste={(e: React.ClipboardEvent) => {
-                        e.preventDefault();
-                    }}
-                    onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
-                    onKeyDown={(e: React.KeyboardEvent) => {
-                        if (e.keyCode === 13) e.preventDefault();
-                    }}
-                    value={yourTyping}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        console.log(context);
-                        context?.typeACharacter(e.target.value);
-                    }}
-                />
-            </div>
+            <TypingHeader>Typing Prompt</TypingHeader>
+            <TypingPrompt>{prompt}</TypingPrompt>
+            <TextInput
+                onPaste={(e: React.ClipboardEvent) => {
+                    e.preventDefault();
+                }}
+                onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.keyCode === 13) e.preventDefault();
+                }}
+                value={yourTyping}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    console.log(context);
+                    context?.typeACharacter(e.target.value);
+                }}
+            />
         </GameContainer>
     );
 };

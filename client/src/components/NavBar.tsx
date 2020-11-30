@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import { Container } from "../elements/components";
+import { Link } from "react-router-dom";
 import { below } from "../elements/utilities";
 
 export interface NavBarProps {}
@@ -14,8 +15,8 @@ const NavBar: React.FC<NavBarProps> = () => {
                         <span>TypeRace</span>
                     </div>
                     <div>
-                        <span>Home</span>
-                        <span>Users</span>
+                        <Link to="/">Home</Link>
+                        <Link to="/users">Users</Link>
                     </div>
                 </NavigationInnerBar>
             </Container>
@@ -34,7 +35,10 @@ export const NavigationInnerBar = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    span {
+
+    a,
+    a:visited {
+        text-decoration: none;
         display: inline-block;
         color: #444;
         text-transform: lowercase;
@@ -42,11 +46,6 @@ export const NavigationInnerBar = styled.div`
         &:not(:last-child) {
             margin-right: 2rem;
         }
-    }
-    a,
-    a:visited {
-        text-decoration: none;
-        color: black;
     }
 
     h1 {

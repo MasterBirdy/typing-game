@@ -1,11 +1,12 @@
-import { ADD_USER, DELETE_USER, SET_USERS_LIST, UserActionTypes } from "../constants/userConstants";
+import { stat } from "fs";
+import { ADD_USER, DELETE_USER, SET_USERS_LIST, UserActionTypes, User } from "../constants/userConstants";
 
 export interface UserStateInterface {
-    users: string[];
+    users: { [key: string]: User };
 }
 
 export const initialState: UserStateInterface = {
-    users: [],
+    users: {},
 };
 
 export const usersReducer = (state = initialState, action: UserActionTypes): UserStateInterface => {
@@ -15,14 +16,19 @@ export const usersReducer = (state = initialState, action: UserActionTypes): Use
                 users: action.payload,
             };
         case ADD_USER:
+            const user = action.payload;
+            const newUsers = { ...state.users };
+            newUsers[user.id] = { ...user };
             return {
                 ...state,
-                users: [...state.users, action.payload],
+                users: newUsers,
             };
         case DELETE_USER:
+            const deletedUsers = { ...state.users };
+            delete deletedUsers[action.payload];
             return {
                 ...state,
-                users: state.users.filter((user) => user !== action.payload),
+                users: deletedUsers,
             };
         default:
             return state;

@@ -1,13 +1,13 @@
-import { ADD_USER, DELETE_USER, SET_USERS_LIST, UserActionTypes } from "../constants/userConstants";
+import { ADD_USER, DELETE_USER, SET_USERS_LIST, UserActionTypes, User } from "../constants/userConstants";
 
-export const setUsersList = (users: string[]): UserActionTypes => {
+export const setUsersList = (users: { [key: string]: User }): UserActionTypes => {
     return {
         type: SET_USERS_LIST,
         payload: users,
     };
 };
 
-export const addUser = (user: string): UserActionTypes => {
+export const addUser = (user: User): UserActionTypes => {
     return {
         type: ADD_USER,
         payload: user,
