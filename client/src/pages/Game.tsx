@@ -1,17 +1,36 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef, useEffect, useMemo } from "react";
 import { SocketContext } from "../context/SocketContext";
 import styled from "styled-components";
 import { Container } from "../elements/components";
-import { useSelector } from "react-redux";
+import { below } from "../elements/utilities";
+import { useSelector, useDispatch } from "react-redux";
 import { ApplicationState } from "../store";
 import TextareaAutosize from "react-textarea-autosize";
+import UserVersusCard from "../components/UserVersusCard";
+import { incrementActionCounter } from "../actions/gameActions";
+import { Prompt } from "react-router-dom";
 
 export interface GameProps {}
 
 const Game: React.FC<GameProps> = () => {
+    const intervalRef = useRef(0);
+    const dispatch = useDispatch();
+    const statusState = useSelector((state: ApplicationState) => state.status);
+    const { opponent, id } = statusState;
     const gameState = useSelector((state: ApplicationState) => state.game);
     const context = useContext(SocketContext);
-    const { typingPrompt, yourTyping, sliceNumber, incorrect } = gameState;
+    const {
+        typingPrompt,
+        yourTyping,
+        sliceNumber,
+        incorrect,
+        yourActions,
+        opponentActions,
+        opponentTyping,
+        timeStarted,
+        currentTime,
+        gameWon,
+    } = gameState;
     let slice = 0;
     let prompt = [];
     if (sliceNumber > 0) {
@@ -24,8 +43,45 @@ const Game: React.FC<GameProps> = () => {
     }
     prompt.push(typingPrompt.slice(slice));
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (opponent) {
+                context?.updateGame(opponent.id);
+            }
+        }, 700);
+        intervalRef.current = interval;
+        return () => {
+            clearInterval(intervalRef.current);
+        };
+    }, []);
+
+    let calculatedNumbers = useMemo(() => {
+        return {
+            you: Math.floor(yourActions / 5 / ((currentTime - timeStarted) / (1000 * 60))),
+            opponent: Math.floor(opponentActions / 5 / ((currentTime - timeStarted) / (1000 * 60))),
+            yourPercentage: Math.min(Math.floor((yourTyping.length / typingPrompt.length) * 100), 100),
+            opponentPercentage: Math.min(Math.floor((opponentTyping.length / typingPrompt.length) * 100), 100),
+        };
+    }, [currentTime]);
+
     return (
         <GameContainer>
+            <Prompt
+                when={!gameWon}
+                message={(message) => "Your game is still being played! Are you sure you want to quit?"}
+            />
+            <UserVersusCard
+                name={"You"}
+                user={id}
+                apm={calculatedNumbers.you}
+                percent={calculatedNumbers.yourPercentage}
+            />
+            <UserVersusCard
+                name={opponent?.name}
+                user={opponent?.id}
+                apm={calculatedNumbers.opponent}
+                percent={calculatedNumbers.opponentPercentage}
+            />
             <TypingHeader>Typing Prompt</TypingHeader>
             <TypingPrompt>{prompt}</TypingPrompt>
             <TextInput
@@ -35,12 +91,17 @@ const Game: React.FC<GameProps> = () => {
                 onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
                 onKeyDown={(e: React.KeyboardEvent) => {
                     if (e.keyCode === 13) e.preventDefault();
+                    else {
+                        if (e.keyCode !== 8) {
+                            dispatch(incrementActionCounter());
+                        }
+                    }
                 }}
                 value={yourTyping}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    console.log(context);
                     context?.typeACharacter(e.target.value);
                 }}
+                disabled={gameWon}
             />
         </GameContainer>
     );
@@ -55,13 +116,20 @@ const TypingHeader = styled.p`
     font-size: 1.3rem;
     font-weight: 700;
     color: #333;
+    margin-top: 1.25rem;
     margin-bottom: 0.5rem;
 `;
 
 const TypingPrompt = styled.span`
     font-family: Crimson Text;
-    font-size: 2.5rem;
+    font-size: 2.3rem;
     user-select: none;
+    ${below.s`
+    font-size: 1.5rem;
+    `}
+    ${below.xs`
+    font-size: 1.3rem;
+    `}
 `;
 
 const GreenSpan = styled.span`

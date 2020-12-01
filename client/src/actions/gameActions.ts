@@ -1,4 +1,13 @@
-import { TYPE_CHARACTER, GameActionTypes } from "../constants/gameConstants";
+import {
+    TYPE_CHARACTER,
+    GameActionTypes,
+    SET_TIME,
+    UPDATE_TIME_GAME,
+    OpponentData,
+    UPDATE_OPPONENT_GAME_DATA,
+    INCREMENT_ACTION_COUNTER,
+    START_THE_GAME,
+} from "../constants/gameConstants";
 
 export const typeCharacter = (input: string, prompt: string): GameActionTypes => {
     const diffPos = findFirstDiffPos(prompt, input);
@@ -6,6 +15,43 @@ export const typeCharacter = (input: string, prompt: string): GameActionTypes =>
     return {
         type: TYPE_CHARACTER,
         payload: { sliceNumber: diffPos, incorrect: correctString !== input, yourTyping: input },
+    };
+};
+
+export const setTime = (time: number): GameActionTypes => {
+    return {
+        type: SET_TIME,
+        payload: time,
+    };
+};
+
+export const updateTimeGame = (): GameActionTypes => {
+    return {
+        type: UPDATE_TIME_GAME,
+        payload: Date.now(),
+    };
+};
+
+export const updateOpponentGameData = (data: OpponentData): GameActionTypes => {
+    return {
+        type: UPDATE_OPPONENT_GAME_DATA,
+        payload: data,
+    };
+};
+
+export const incrementActionCounter = (): GameActionTypes => {
+    return {
+        type: INCREMENT_ACTION_COUNTER,
+    };
+};
+
+export const gameStart = (time: number, prompt: string): GameActionTypes => {
+    return {
+        type: START_THE_GAME,
+        payload: {
+            time,
+            prompt,
+        },
     };
 };
 

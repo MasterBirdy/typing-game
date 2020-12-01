@@ -1,8 +1,4 @@
-interface SocketConstantInterface {
-    [key: string]: string;
-}
-
-export const socketConstants: SocketConstantInterface = {
+const socketConstants = {
     USERS_LIST: "users_list",
     ADD_USER: "add_user",
     DELETE_USER: "delete_user",
@@ -12,8 +8,10 @@ export const socketConstants: SocketConstantInterface = {
     SET_ID: "set_id",
     SET_STATUS: "set_status",
     START_GAME: "start_game",
-    TYPE_CHARACTER: "type_character",
     UPDATE_GAME: "update_game",
+    TYPE_CHARACTER: "type_character",
     GAME_UPDATED: "game_updated",
     GAME_WON: "game_won",
 };
+
+export default socketConstants;

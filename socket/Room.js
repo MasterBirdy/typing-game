@@ -1,11 +1,13 @@
+import typingPrompts from "./typingPrompts";
+
 class Room {
     constructor(members) {
         this.members = members.reduce((acc, cur) => {
-            acc[cur] = { currentString: "", apm: 0 };
+            acc[cur] = { currentString: "", actions: 0 };
             return acc;
         }, {});
         this.timer = Date.now();
-        this.typePrompt = "Peter Piper picked a peck of pickled peppers.";
+        this.typePrompt = typingPrompts[Math.floor(Math.random() * typingPrompts.length)];
         this.gameWon = false;
     }
 
@@ -15,9 +17,9 @@ class Room {
         }
     }
 
-    changeAPM(number, id) {
+    changeActions(number, id) {
         if (this.members[id]) {
-            this.members[id].apm = number;
+            this.members[id].actions = number;
         }
     }
 
@@ -25,8 +27,6 @@ class Room {
         if (this.gameWon) {
             return false;
         }
-        console.log("STRING 1", this.typePrompt);
-        console.log("STRING 2", this.members[id].currentString);
         if (this.members[id] && this.typePrompt === this.members[id].currentString) {
             this.gameWon = true;
             return true;

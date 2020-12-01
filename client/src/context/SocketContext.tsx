@@ -2,7 +2,7 @@ import React, { useEffect, createContext } from "react";
 import io from "socket.io-client";
 import { addUser, deleteUser, setUsersList } from "../actions/userActions";
 import { changeStatus, challengeUser, getChallenged, setID } from "../actions/statusActions";
-import { typeCharacter } from "../actions/gameActions";
+import { setTime, typeCharacter, updateOpponentGameData, updateTimeGame, gameStart } from "../actions/gameActions";
 import { setMessage, createMessageWithAction, resetAllMessage } from "../actions/messageActions";
 import { Status } from "../constants/statusConstants";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,6 +10,7 @@ import { User } from "../constants/userConstants";
 import { socketConstants } from "../constants/socketConstants";
 import { useHistory } from "react-router-dom";
 import { ApplicationState } from "../store";
+import { OpponentData } from "../constants/gameConstants";
 const socket = io("http://localhost:5000");
 
 export interface SocketContextInterface {
@@ -17,6 +18,7 @@ export interface SocketContextInterface {
     challenge: (s: User) => void;
     acceptInvite: (s: string) => void;
     typeACharacter: (s: string) => void;
+    updateGame: (s: string) => void;
 }
 
 export const SocketContext = createContext<SocketContextInterface | null>(null);
@@ -35,6 +37,8 @@ const {
     USER_CHALLENGED,
     ACCEPT_CHALLENGE,
     START_GAME,
+    UPDATE_GAME,
+    GAME_UPDATED,
     GAME_WON,
     TYPE_CHARACTER,
 } = socketConstants;
@@ -43,7 +47,7 @@ export const SocketProvider = ({ children }: SocketProviderInterface) => {
     const dispatch = useDispatch();
     const history = useHistory();
     const gameState = useSelector((state: ApplicationState) => state.game);
-    const { typingPrompt } = gameState;
+    const { typingPrompt, yourActions } = gameState;
     useEffect(() => {
         socket.on(SET_ID, (data: string) => {
             dispatch(setID(data));
@@ -77,13 +81,18 @@ export const SocketProvider = ({ children }: SocketProviderInterface) => {
             dispatch(changeStatus(data));
         });
 
+        socket.on(GAME_UPDATED, (data: OpponentData) => {
+            dispatch(updateOpponentGameData(data));
+        });
+
         socket.on(GAME_WON, () => {
             console.log("Game Won!");
         });
 
-        socket.on(START_GAME, () => {
+        socket.on(START_GAME, (time: number, prompt: string) => {
             dispatch(changeStatus(Status.PLAYING));
             dispatch(setMessage(""));
+            dispatch(gameStart(time, prompt));
             history.push("/game");
         });
     }, [history]);
@@ -107,12 +116,17 @@ export const SocketProvider = ({ children }: SocketProviderInterface) => {
     };
 
     const typeACharacter = (typedString: string) => {
-        socket.emit(TYPE_CHARACTER, typedString);
+        socket.emit(TYPE_CHARACTER, typedString, yourActions);
         dispatch(typeCharacter(typedString, typingPrompt));
     };
 
+    const updateGame = (opponent: string) => {
+        socket.emit(UPDATE_GAME, opponent);
+        dispatch(updateTimeGame());
+    };
+
     return (
-        <SocketContext.Provider value={{ id: socket.id, challenge, acceptInvite, typeACharacter }}>
+        <SocketContext.Provider value={{ id: socket.id, challenge, acceptInvite, typeACharacter, updateGame }}>
             {children}
         </SocketContext.Provider>
     );

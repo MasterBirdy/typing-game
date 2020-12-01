@@ -12,11 +12,11 @@ const NavBar: React.FC<NavBarProps> = () => {
             <Container>
                 <NavigationInnerBar>
                     <div>
-                        <span>TypeRace</span>
+                        <Link to="/">TypeRace</Link>
                     </div>
                     <div>
-                        <Link to="/">Home</Link>
-                        <Link to="/users">Users</Link>
+                        <Link to="/">home</Link>
+                        <Link to="/users">users</Link>
                     </div>
                 </NavigationInnerBar>
             </Container>
@@ -41,7 +41,7 @@ export const NavigationInnerBar = styled.div`
         text-decoration: none;
         display: inline-block;
         color: #444;
-        text-transform: lowercase;
+
         font-family: Lato, sans-serif;
         &:not(:last-child) {
             margin-right: 2rem;

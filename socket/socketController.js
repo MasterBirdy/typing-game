@@ -1,31 +1,13 @@
 import socketio from "socket.io";
+import socketConstants from "./socketConstants";
+import statusConstants from "./statusConstants";
+import typingPrompts from "./typingPrompts";
 import Room from "../socket/Room";
 import { v4 as uuidv4 } from "uuid";
 export const users = {};
 export const rooms = {};
 
 let count = 0;
-
-const socketConstants = {
-    USERS_LIST: "users_list",
-    ADD_USER: "add_user",
-    DELETE_USER: "delete_user",
-    CHALLENGE_USER: "challenge_user",
-    USER_CHALLENGED: "user_challenged",
-    ACCEPT_CHALLENGE: "accept_challenge",
-    SET_ID: "set_id",
-    SET_STATUS: "set_status",
-    START_GAME: "start_game",
-    TYPE_CHARACTER: "type_character",
-    GAME_WON: "game_won",
-};
-
-const statusConstants = {
-    IDLE: "Idle",
-    WAITING: "Waiting",
-    CHALLENGED: "Challenged",
-    PLAYING: "Playing",
-};
 
 export const socket = (app) => {
     const io = socketio(app, {
@@ -42,9 +24,11 @@ export const socket = (app) => {
         USER_CHALLENGED,
         ACCEPT_CHALLENGE,
         SET_STATUS,
+        UPDATE_GAME,
         SET_ID,
         START_GAME,
         TYPE_CHARACTER,
+        GAME_UPDATED,
         GAME_WON,
     } = socketConstants;
     const { IDLE, WAITING, CHALLENGED, PLAYING } = statusConstants;
@@ -100,23 +84,35 @@ export const socket = (app) => {
                 opponentSocket.handshake.room = roomID;
                 socket.handshake.room = roomID;
                 rooms[roomID] = new Room([socket.id, opponentSocket.id]);
+                const time = Date.now();
                 socket.handshake.status = PLAYING;
-                io.to(socket.id).emit(START_GAME);
+                io.to(socket.id).emit(START_GAME, time, rooms[roomID].typePrompt);
                 opponentSocket.handshake.status = PLAYING;
-                io.to(opponentSocket.id).emit(START_GAME);
+                io.to(opponentSocket.id).emit(START_GAME, time, rooms[roomID].typePrompt);
             }
         });
 
-        socket.on(TYPE_CHARACTER, (currentString) => {
+        socket.on(TYPE_CHARACTER, (currentString, actions) => {
             const roomID = socket.handshake.room;
             if (socket.handshake.status === PLAYING && roomID && rooms[roomID]) {
                 const room = rooms[roomID];
                 room.addCharacter(currentString, socket.id);
+                room.changeActions(actions, socket.id);
                 if (room.hasUserWon(socket.id)) {
                     Object.keys(room.members).forEach((member) => {
                         io.to(member).emit(GAME_WON);
                     });
                 }
+            }
+        });
+
+        socket.on(UPDATE_GAME, (opponent) => {
+            const roomID = socket.handshake.room;
+            if (rooms[roomID] && rooms[roomID].members[opponent]) {
+                io.to(socket.id).emit(GAME_UPDATED, {
+                    opponentTyping: rooms[roomID].members[opponent].currentString,
+                    opponentActions: rooms[roomID].members[opponent].actions,
+                });
             }
         });
 
