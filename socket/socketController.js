@@ -23,13 +23,18 @@ export const socket = (app) => {
         CHALLENGE_USER,
         USER_CHALLENGED,
         ACCEPT_CHALLENGE,
+        CANCEL_CHALLENGE,
         SET_STATUS,
         UPDATE_GAME,
+        CHANGE_NAME,
         SET_ID,
+        SET_NAME,
         START_GAME,
         TYPE_CHARACTER,
         GAME_UPDATED,
         GAME_WON,
+        OPPONENT_DISCONNECTED,
+        OPPONENT_LEFT,
     } = socketConstants;
     const { IDLE, WAITING, CHALLENGED, PLAYING } = statusConstants;
 
@@ -38,6 +43,7 @@ export const socket = (app) => {
         io.to(socket.id).emit(SET_ID, socket.id);
         socket.handshake.status = IDLE;
         socket.handshake.name = `User ${++count}`;
+        io.to(socket.id).emit(SET_NAME, socket.handshake.name);
         io.to(socket.id).emit(
             USERS_LIST,
             Object.keys(users).reduce((acc, cur) => {
@@ -52,17 +58,13 @@ export const socket = (app) => {
         });
 
         socket.on(CHALLENGE_USER, (invite) => {
-            socket.handshake.status = WAITING;
-            if (users[invite]) {
-                users[invite].handshake.status = CHALLENGED;
-                io.to(socket.id).emit(
-                    USERS_LIST,
-                    Object.keys(users).reduce((acc, cur) => {
-                        acc[cur] = { id: cur, name: users[cur].handshake.name, status: users[cur].handshake.status };
-                        return acc;
-                    }, {})
-                );
-                socket.broadcast.emit(
+            const opponent = users[invite];
+            if (opponent) {
+                socket.handshake.status = WAITING;
+                socket.handshake.opponent = opponent.id;
+                opponent.handshake.status = CHALLENGED;
+                opponent.handshake.opponent = socket.id;
+                io.emit(
                     USERS_LIST,
                     Object.keys(users).reduce((acc, cur) => {
                         acc[cur] = { id: cur, name: users[cur].handshake.name, status: users[cur].handshake.status };
@@ -75,6 +77,17 @@ export const socket = (app) => {
                     status: socket.handshake.status,
                 });
             }
+        });
+
+        socket.on(CHANGE_NAME, (name) => {
+            socket.handshake.name = name;
+            io.emit(
+                USERS_LIST,
+                Object.keys(users).reduce((acc, cur) => {
+                    acc[cur] = { id: cur, name: users[cur].handshake.name, status: users[cur].handshake.status };
+                    return acc;
+                }, {})
+            );
         });
 
         socket.on(ACCEPT_CHALLENGE, (invite) => {
@@ -92,6 +105,17 @@ export const socket = (app) => {
             }
         });
 
+        socket.on(CANCEL_CHALLENGE, () => {
+            opponentLeaves("Your opponent has cancelled the challenge.");
+            io.emit(
+                USERS_LIST,
+                Object.keys(users).reduce((acc, cur) => {
+                    acc[cur] = { id: cur, name: users[cur].handshake.name, status: users[cur].handshake.status };
+                    return acc;
+                }, {})
+            );
+        });
+
         socket.on(TYPE_CHARACTER, (currentString, actions) => {
             const roomID = socket.handshake.room;
             if (socket.handshake.status === PLAYING && roomID && rooms[roomID]) {
@@ -100,7 +124,7 @@ export const socket = (app) => {
                 room.changeActions(actions, socket.id);
                 if (room.hasUserWon(socket.id)) {
                     Object.keys(room.members).forEach((member) => {
-                        io.to(member).emit(GAME_WON);
+                        io.to(member).emit(GAME_WON, socket.id);
                     });
                 }
             }
@@ -116,10 +140,47 @@ export const socket = (app) => {
             }
         });
 
-        socket.on("disconnect", function () {
-            delete users[socket.id];
-            io.emit(DELETE_USER, socket.id);
+        socket.on(OPPONENT_LEFT, () => {
+            opponentLeaves("Your opponent has left the room.");
+            io.emit(
+                USERS_LIST,
+                Object.keys(users).reduce((acc, cur) => {
+                    acc[cur] = { id: cur, name: users[cur].handshake.name, status: users[cur].handshake.status };
+                    return acc;
+                }, {})
+            );
         });
+
+        socket.on("disconnect", function () {
+            opponentLeaves("Your opponent has disconnected.");
+            if (socket.handshake.room && rooms[socket.handshake.room]) {
+                Object.keys(rooms[socket.handshake.room].members).forEach((member) => {
+                    if (member !== socket.id) {
+                        users[member].handshake.room = null;
+                    }
+                });
+                delete rooms[socket.handshake.room];
+            }
+            delete users[socket.id];
+            socket.broadcast.emit(
+                USERS_LIST,
+                Object.keys(users).reduce((acc, cur) => {
+                    acc[cur] = { id: cur, name: users[cur].handshake.name, status: users[cur].handshake.status };
+                    return acc;
+                }, {})
+            );
+        });
+
+        function opponentLeaves(message) {
+            if (socket.handshake.opponent && users[socket.handshake.opponent]) {
+                const opponent = socket.handshake.opponent;
+                users[opponent].handshake.status = IDLE;
+                users[opponent].handshake.opponent = null;
+                io.to(opponent).emit(OPPONENT_DISCONNECTED, message);
+            }
+            socket.handshake.status = IDLE;
+            socket.handshake.opponent = null;
+        }
     });
 
     return io;

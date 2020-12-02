@@ -7,6 +7,8 @@ import {
     UPDATE_OPPONENT_GAME_DATA,
     INCREMENT_ACTION_COUNTER,
     START_THE_GAME,
+    WON_THE_GAME,
+    STOP_THE_GAME,
 } from "../constants/gameConstants";
 
 export const typeCharacter = (input: string, prompt: string): GameActionTypes => {
@@ -52,6 +54,19 @@ export const gameStart = (time: number, prompt: string): GameActionTypes => {
             time,
             prompt,
         },
+    };
+};
+
+export const gameWon = (winnerIsYou: boolean): GameActionTypes => {
+    return {
+        type: WON_THE_GAME,
+        payload: winnerIsYou,
+    };
+};
+
+export const stopGame = (): GameActionTypes => {
+    return {
+        type: STOP_THE_GAME,
     };
 };
 

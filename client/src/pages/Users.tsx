@@ -27,11 +27,12 @@ const Users: React.FC<UsersProps> = () => {
             <Grid columns={12}>
                 {usersOnline.length ? (
                     usersOnline.map((user) => (
-                        <GridItem span={3} key={user}>
+                        <GridItem className="s-col-6 xs-col-12" span={3} key={user}>
                             <PlayerCard
                                 clickHandler={() => context?.challenge(users[user])}
                                 user={users[user].name}
                                 status={users[user].status}
+                                id={user}
                             />
                         </GridItem>
                     ))
@@ -48,11 +49,12 @@ const Users: React.FC<UsersProps> = () => {
             <Grid columns={12}>
                 {usersBusy.length ? (
                     usersBusy.map((user) => (
-                        <GridItem span={3} key={user}>
+                        <GridItem className="s-col-6 xs-col-12" span={3} key={user}>
                             <PlayerCard
                                 clickHandler={() => context?.challenge(users[user])}
                                 user={users[user].name}
                                 status={users[user].status}
+                                id={user}
                             />
                         </GridItem>
                     ))
@@ -75,7 +77,7 @@ interface HeaderProps {
 const UsersHeader = styled.h3<HeaderProps>`
     display: flex;
     align-items: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.25rem;
     margin-top: ${(props) => (props.marginTop ? props.marginTop : 0)}rem;
     &.users-busy {
         svg {

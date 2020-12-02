@@ -8,12 +8,13 @@ export interface PlayerCardProps {
     user: string;
     clickHandler?: () => void;
     status: Status;
+    id: string;
 }
 
-const PlayerCard: React.FC<PlayerCardProps> = ({ user, clickHandler, status }) => {
+const PlayerCard: React.FC<PlayerCardProps> = ({ user, clickHandler, status, id }) => {
     return (
         <Card>
-            <div dangerouslySetInnerHTML={{ __html: toSvg(user, 40) }}></div>
+            <div dangerouslySetInnerHTML={{ __html: toSvg(id, 40) }}></div>
             <p>Name: {user}</p>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <Button
@@ -36,6 +37,8 @@ PlayerCard.defaultProps = {
 export default PlayerCard;
 
 const Card = styled.div`
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
     border: 1px solid #eee;
     border-radius: 5px;
     padding: 1rem;

@@ -4,6 +4,7 @@ import {
     RESET_ALL_MESSAGE,
     MESSAGE_WITH_ACTION,
     MessageActionTypes,
+    RESET_ERROR,
 } from "../constants/messageConstants";
 
 export interface MessageStateInterface {
@@ -33,6 +34,11 @@ export const messageReducer = (state = initialState, action: MessageActionTypes)
             return {
                 ...state,
                 error: action.payload,
+            };
+        case RESET_ERROR:
+            return {
+                ...state,
+                error: "",
             };
         case MESSAGE_WITH_ACTION:
             return {

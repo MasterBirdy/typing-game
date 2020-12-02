@@ -2,8 +2,10 @@ import { User } from "./userConstants";
 
 export const SET_STATUS = "SET_STATUS";
 export const SET_ID = "SET_ID";
+export const SET_NAME = "SET_NAME";
 export const CHALLENGE_USER = "CHALLENGE_USER";
 export const GET_CHALLENGED = "GET_CHALLENGED";
+export const RESET_OPPONENT = "RESET_OPPONENT";
 
 export enum Status {
     IDLE = "Idle",
@@ -14,6 +16,11 @@ export enum Status {
 
 interface SetIdAction {
     type: typeof SET_ID;
+    payload: string;
+}
+
+interface SetNameAction {
+    type: typeof SET_NAME;
     payload: string;
 }
 
@@ -32,4 +39,14 @@ interface GetChallengedAction {
     payload: User;
 }
 
-export type StatusActionTypes = SetIdAction | SetStatusAction | ChallengeUserAction | GetChallengedAction;
+interface ResetOpponentAction {
+    type: typeof RESET_OPPONENT;
+}
+
+export type StatusActionTypes =
+    | SetIdAction
+    | SetNameAction
+    | SetStatusAction
+    | ChallengeUserAction
+    | GetChallengedAction
+    | ResetOpponentAction;

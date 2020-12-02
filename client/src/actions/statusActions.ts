@@ -5,6 +5,8 @@ import {
     Status,
     StatusActionTypes,
     SET_ID,
+    RESET_OPPONENT,
+    SET_NAME,
 } from "../constants/statusConstants";
 import { User } from "../constants/userConstants";
 
@@ -12,6 +14,13 @@ export const setID = (id: string): StatusActionTypes => {
     return {
         type: SET_ID,
         payload: id,
+    };
+};
+
+export const setName = (name: string): StatusActionTypes => {
+    return {
+        type: SET_NAME,
+        payload: name,
     };
 };
 
@@ -34,5 +43,11 @@ export const getChallenged = (opponent: User): StatusActionTypes => {
     return {
         type: GET_CHALLENGED,
         payload: opponent,
+    };
+};
+
+export const resetOpponent = (): StatusActionTypes => {
+    return {
+        type: RESET_OPPONENT,
     };
 };

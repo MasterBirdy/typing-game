@@ -1,16 +1,18 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import { ApplicationState } from "../store";
 import Message, { messageType } from "./Message";
-import { Container } from "../elements/components/";
 import { below } from "../elements/utilities";
+import { resetError } from "../actions/messageActions";
 
 export interface MessageWrapperProps {}
 
 const MessageWrapper: React.FC<MessageWrapperProps> = () => {
+    const dispatch = useDispatch();
     const messageState = useSelector((state: ApplicationState) => state.message);
     const { message, error, button, errorOnClick } = messageState;
+
     return (
         <Wrapper>
             {message && (
@@ -22,7 +24,9 @@ const MessageWrapper: React.FC<MessageWrapperProps> = () => {
             {error && (
                 <Message type={messageType.error}>
                     {error}
-                    <Button onClick={(e: React.MouseEvent) => errorOnClick(e)}>Accept</Button>
+                    <Button typeProp={messageType.error} onClick={(e: React.MouseEvent) => dispatch(resetError())}>
+                        Accept
+                    </Button>
                 </Message>
             )}
         </Wrapper>
@@ -41,17 +45,18 @@ const Wrapper = styled.div`
     `}
 `;
 
-const Button = styled.button`
+const Button = styled.button<{ typeProp?: messageType }>`
     border-style: solid;
     border-width: 2px;
     border-radius: 5px;
-    border-color: #d1d1d1;
-    background-color: #f0f0f0;
+    border-color: ${(props) => (props.typeProp && props.typeProp === messageType.error ? "#af8489" : "#d1d1d1")};
+    background-color: ${(props) => (props.typeProp && props.typeProp === messageType.error ? "#e0bdc1" : "#f0f0f0")};
     font-family: Lato, sans-serif;
     color: #292c2e;
     padding: 0.66rem;
     cursor: pointer;
     outline: none;
+    margin-left: 0.33rem;
 `;
 
 export default MessageWrapper;

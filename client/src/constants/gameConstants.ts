@@ -4,6 +4,8 @@ export const UPDATE_TIME_GAME = "UPDATE_TIME_GAME";
 export const UPDATE_OPPONENT_GAME_DATA = "UPDATE_OPPONENT_GAME_DATA";
 export const INCREMENT_ACTION_COUNTER = "INCREMENT_ACTION_COUNTER";
 export const START_THE_GAME = "START_THE_GAME";
+export const WON_THE_GAME = "WON_THE_GAME";
+export const STOP_THE_GAME = "STOP_THE_GAME";
 
 export interface OpponentData {
     opponentTyping: string;
@@ -45,6 +47,14 @@ interface StartGameAction {
         prompt: string;
     };
 }
+interface GameWonAction {
+    type: typeof WON_THE_GAME;
+    payload: boolean;
+}
+
+interface StopGameAction {
+    type: typeof STOP_THE_GAME;
+}
 
 export type GameActionTypes =
     | TypeCharacterAction
@@ -52,4 +62,6 @@ export type GameActionTypes =
     | UpdateTimeGameAction
     | UpdateOpponentGameDataAction
     | IncrementActionCounter
-    | StartGameAction;
+    | StartGameAction
+    | GameWonAction
+    | StopGameAction;

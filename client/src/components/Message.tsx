@@ -22,9 +22,9 @@ const MessageBox = styled.div<{ type: messageType }>`
     border-style: solid;
     border-width: 2px;
     border-radius: 5px;
-    border-color: ${(props) => (props.type === messageType.error ? "red" : "#c6c7ca")};
+    border-color: ${(props) => (props.type === messageType.error ? "#c7999e" : "#c6c7ca")};
     box-shadow: 5px 5px 13px -6px rgba(0, 0, 0, 0.29);
-    background-color: #e2e3e5;
+    background-color: ${(props) => (props.type === messageType.error ? "#f8d7da" : "#e2e3e5")};
     font-family: Lato, sans-serif;
     color: #383d41;
     padding: 0.5rem 1.25rem 0.5rem;

@@ -3,10 +3,15 @@ import styled from "styled-components";
 import { Container } from "../elements/components";
 import { Link } from "react-router-dom";
 import { below } from "../elements/utilities";
+import { toSvg } from "jdenticon";
+import { useSelector } from "react-redux";
+import { ApplicationState } from "../store";
 
 export interface NavBarProps {}
 
 const NavBar: React.FC<NavBarProps> = () => {
+    const statusState = useSelector((state: ApplicationState) => state.status);
+    const { id } = statusState;
     return (
         <NavigationBar>
             <Container>
@@ -14,10 +19,11 @@ const NavBar: React.FC<NavBarProps> = () => {
                     <div>
                         <Link to="/">TypeRace</Link>
                     </div>
-                    <div>
+                    <Flex>
                         <Link to="/">home</Link>
                         <Link to="/users">users</Link>
-                    </div>
+                        <div dangerouslySetInnerHTML={{ __html: toSvg(id, 36) }}></div>
+                    </Flex>
                 </NavigationInnerBar>
             </Container>
         </NavigationBar>
@@ -26,11 +32,11 @@ const NavBar: React.FC<NavBarProps> = () => {
 
 export default NavBar;
 
-export const NavigationBar = styled.div`
+const NavigationBar = styled.div`
     box-shadow: 2px 0px 26px -8px rgba(0, 0, 0, 0.22);
 `;
 
-export const NavigationInnerBar = styled.div`
+const NavigationInnerBar = styled.div`
     padding: 1.35rem 0;
     display: flex;
     justify-content: space-between;
@@ -44,11 +50,16 @@ export const NavigationInnerBar = styled.div`
 
         font-family: Lato, sans-serif;
         &:not(:last-child) {
-            margin-right: 2rem;
+            margin-right: 1.25rem;
         }
     }
 
     h1 {
         font-size: 3rem;
     }
+`;
+
+const Flex = styled.div`
+    display: flex;
+    align-items: center;
 `;

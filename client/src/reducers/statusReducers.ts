@@ -2,20 +2,24 @@ import {
     SET_STATUS,
     CHALLENGE_USER,
     GET_CHALLENGED,
+    RESET_OPPONENT,
     StatusActionTypes,
     Status,
     SET_ID,
+    SET_NAME,
 } from "../constants/statusConstants";
 import { User } from "../constants/userConstants";
 
 export interface StatusStateInterface {
     id: string;
+    name: string;
     status: Status;
     opponent: User | null;
 }
 
 export const initialState: StatusStateInterface = {
     id: "",
+    name: "",
     status: Status.IDLE,
     opponent: null,
 };
@@ -26,6 +30,11 @@ export const statusReducer = (state = initialState, action: StatusActionTypes): 
             return {
                 ...state,
                 id: action.payload,
+            };
+        case SET_NAME:
+            return {
+                ...state,
+                name: action.payload,
             };
         case SET_STATUS:
             return {
@@ -43,6 +52,12 @@ export const statusReducer = (state = initialState, action: StatusActionTypes): 
                 ...state,
                 status: Status.CHALLENGED,
                 opponent: action.payload,
+            };
+        case RESET_OPPONENT:
+            return {
+                ...state,
+                status: Status.IDLE,
+                opponent: null,
             };
         default:
             return state;

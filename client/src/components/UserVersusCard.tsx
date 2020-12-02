@@ -7,14 +7,15 @@ export interface UserVersusCardProps {
     name?: string;
     apm?: number;
     percent?: number;
+    winner: boolean;
 }
 
-const UserVersusCard: React.FC<UserVersusCardProps> = ({ user, name, apm, percent }) => {
+const UserVersusCard: React.FC<UserVersusCardProps> = ({ user, name, apm, percent, winner }) => {
     return (
         <Container>
-            <div dangerouslySetInnerHTML={{ __html: toSvg(user, 64) }}></div> <Text>{name}</Text>{" "}
-            <Text className="light">{apm} wpm</Text>
-            <Text className="light">{percent}%</Text>
+            <div dangerouslySetInnerHTML={{ __html: toSvg(user, 64) }}></div> <Text>{name}</Text> <Text>{apm} wpm</Text>
+            <Text>{percent}%</Text>
+            {winner && <WinnerText className="green">Winner!</WinnerText>}
         </Container>
     );
 };
@@ -39,4 +40,7 @@ const Text = styled.p`
     line-height: 1.3;
 `;
 
+const WinnerText = styled.p`
+    color: green;
+`;
 export default UserVersusCard;

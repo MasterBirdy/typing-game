@@ -6,6 +6,8 @@ import {
     UPDATE_OPPONENT_GAME_DATA,
     INCREMENT_ACTION_COUNTER,
     START_THE_GAME,
+    WON_THE_GAME,
+    STOP_THE_GAME,
 } from "../constants/gameConstants";
 
 export interface GameStateInterface {
@@ -19,10 +21,11 @@ export interface GameStateInterface {
     sliceNumber: number;
     incorrect: boolean;
     gameWon: boolean;
+    youWon: boolean;
 }
 
 export const intitalState: GameStateInterface = {
-    typingPrompt: "Peter Piper picked a peck of pickled peppers.",
+    typingPrompt: "",
     yourTyping: "",
     opponentTyping: "",
     yourActions: 0,
@@ -32,6 +35,7 @@ export const intitalState: GameStateInterface = {
     sliceNumber: 0,
     incorrect: false,
     gameWon: false,
+    youWon: false,
 };
 
 export const gameReducer = (state = intitalState, action: GameActionTypes): GameStateInterface => {
@@ -76,6 +80,26 @@ export const gameReducer = (state = intitalState, action: GameActionTypes): Game
                 sliceNumber: 0,
                 incorrect: false,
                 gameWon: false,
+                youWon: false,
+            };
+        case WON_THE_GAME:
+            return {
+                ...state,
+                gameWon: true,
+                youWon: action.payload,
+            };
+        case STOP_THE_GAME:
+            return {
+                ...state,
+                timeStarted: 0,
+                currentTime: 0,
+                typingPrompt: "",
+                yourActions: 0,
+                opponentActions: 0,
+                sliceNumber: 0,
+                incorrect: false,
+                gameWon: false,
+                youWon: false,
             };
         default:
             return state;

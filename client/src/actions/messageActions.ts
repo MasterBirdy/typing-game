@@ -1,6 +1,7 @@
 import {
     SET_ERROR,
     SET_MESSAGE,
+    RESET_ERROR,
     RESET_ALL_MESSAGE,
     MESSAGE_WITH_ACTION,
     MessageActionTypes,
@@ -17,6 +18,12 @@ export const setError = (error: string): MessageActionTypes => {
     return {
         type: SET_ERROR,
         payload: error,
+    };
+};
+
+export const resetError = (): MessageActionTypes => {
+    return {
+        type: RESET_ERROR,
     };
 };
 

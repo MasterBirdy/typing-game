@@ -1,9 +1,16 @@
 import React, { useEffect, createContext } from "react";
 import io from "socket.io-client";
 import { addUser, deleteUser, setUsersList } from "../actions/userActions";
-import { changeStatus, challengeUser, getChallenged, setID } from "../actions/statusActions";
-import { setTime, typeCharacter, updateOpponentGameData, updateTimeGame, gameStart } from "../actions/gameActions";
-import { setMessage, createMessageWithAction, resetAllMessage } from "../actions/messageActions";
+import { changeStatus, challengeUser, getChallenged, setID, setName, resetOpponent } from "../actions/statusActions";
+import {
+    typeCharacter,
+    updateOpponentGameData,
+    updateTimeGame,
+    gameStart,
+    gameWon,
+    stopGame,
+} from "../actions/gameActions";
+import { setMessage, createMessageWithAction, resetAllMessage, setError } from "../actions/messageActions";
 import { Status } from "../constants/statusConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { User } from "../constants/userConstants";
@@ -19,6 +26,8 @@ export interface SocketContextInterface {
     acceptInvite: (s: string) => void;
     typeACharacter: (s: string) => void;
     updateGame: (s: string) => void;
+    setMyName: (s: string) => void;
+    leaveGame: () => void;
 }
 
 export const SocketContext = createContext<SocketContextInterface | null>(null);
@@ -33,14 +42,19 @@ const {
     DELETE_USER,
     CHALLENGE_USER,
     SET_ID,
+    CHANGE_NAME,
+    SET_NAME,
     SET_STATUS,
     USER_CHALLENGED,
     ACCEPT_CHALLENGE,
+    CANCEL_CHALLENGE,
     START_GAME,
     UPDATE_GAME,
     GAME_UPDATED,
     GAME_WON,
     TYPE_CHARACTER,
+    OPPONENT_LEFT,
+    OPPONENT_DISCONNECTED,
 } = socketConstants;
 
 export const SocketProvider = ({ children }: SocketProviderInterface) => {
@@ -51,6 +65,10 @@ export const SocketProvider = ({ children }: SocketProviderInterface) => {
     useEffect(() => {
         socket.on(SET_ID, (data: string) => {
             dispatch(setID(data));
+        });
+
+        socket.on(SET_NAME, (data: string) => {
+            dispatch(setName(data));
         });
 
         socket.on(USERS_LIST, (data: { [key: string]: User }) => {
@@ -85,15 +103,31 @@ export const SocketProvider = ({ children }: SocketProviderInterface) => {
             dispatch(updateOpponentGameData(data));
         });
 
-        socket.on(GAME_WON, () => {
-            console.log("Game Won!");
-        });
-
         socket.on(START_GAME, (time: number, prompt: string) => {
             dispatch(changeStatus(Status.PLAYING));
-            dispatch(setMessage(""));
+            dispatch(resetAllMessage());
             dispatch(gameStart(time, prompt));
             history.push("/game");
+        });
+
+        socket.on(GAME_WON, (winner: string) => {
+            dispatch(gameWon(winner === socket.id));
+            dispatch(
+                createMessageWithAction(`Game has finished! Click here to leave the room.`, {
+                    name: "Leave",
+                    onClick: () => {
+                        history.push("/");
+                        dispatch(resetAllMessage());
+                    },
+                })
+            );
+        });
+
+        socket.on(OPPONENT_DISCONNECTED, (message: string) => {
+            dispatch(stopGame());
+            dispatch(resetOpponent());
+            dispatch(setMessage(""));
+            dispatch(setError(message));
         });
     }, [history]);
 
@@ -104,7 +138,8 @@ export const SocketProvider = ({ children }: SocketProviderInterface) => {
             createMessageWithAction(`You have challenged ${opponent.name} to a fight!`, {
                 name: "Cancel",
                 onClick: () => {
-                    dispatch(resetAllMessage());
+                    dispatch(setMessage(""));
+                    socket.emit(CANCEL_CHALLENGE);
                 },
             })
         );
@@ -125,8 +160,29 @@ export const SocketProvider = ({ children }: SocketProviderInterface) => {
         dispatch(updateTimeGame());
     };
 
+    const leaveGame = () => {
+        socket.emit(OPPONENT_LEFT);
+        dispatch(stopGame());
+        dispatch(resetOpponent());
+    };
+
+    const setMyName = (name: string) => {
+        socket.emit(CHANGE_NAME, name);
+        dispatch(setName(name));
+        dispatch(
+            createMessageWithAction(`Name changed to ${name}.`, {
+                name: "Accept",
+                onClick: () => {
+                    dispatch(setMessage(""));
+                },
+            })
+        );
+    };
+
     return (
-        <SocketContext.Provider value={{ id: socket.id, challenge, acceptInvite, typeACharacter, updateGame }}>
+        <SocketContext.Provider
+            value={{ id: socket.id, challenge, acceptInvite, typeACharacter, updateGame, setMyName, leaveGame }}
+        >
             {children}
         </SocketContext.Provider>
     );

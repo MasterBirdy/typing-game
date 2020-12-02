@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { below } from "../utilities";
 
 interface GridProps {
     marginTop?: number;
@@ -24,6 +25,17 @@ interface GridItemProps {
 export const GridItem = styled.div<GridItemProps>`
     grid-column: ${(props) => props.start} / span ${(props) => props.span};
     height: 100%;
+    ${below.s`
+    &.s-col-6 {
+        grid-column: auto / span 6;
+    }
+    `}
+
+    ${below.xs`
+    &.xs-col-12 {
+        grid-column: auto / span 12;
+    }
+    `}
 `;
 
 GridItem.defaultProps = {

@@ -30,6 +30,7 @@ const Game: React.FC<GameProps> = () => {
         timeStarted,
         currentTime,
         gameWon,
+        youWon,
     } = gameState;
     let slice = 0;
     let prompt = [];
@@ -52,8 +53,15 @@ const Game: React.FC<GameProps> = () => {
         intervalRef.current = interval;
         return () => {
             clearInterval(intervalRef.current);
+            context?.leaveGame();
         };
     }, []);
+
+    useEffect(() => {
+        if (intervalRef.current && gameWon) {
+            clearInterval(intervalRef.current);
+        }
+    }, [intervalRef, gameWon]);
 
     let calculatedNumbers = useMemo(() => {
         return {
@@ -66,22 +74,23 @@ const Game: React.FC<GameProps> = () => {
 
     return (
         <GameContainer>
-            <Prompt
-                when={!gameWon}
-                message={(message) => "Your game is still being played! Are you sure you want to quit?"}
-            />
-            <UserVersusCard
-                name={"You"}
-                user={id}
-                apm={calculatedNumbers.you}
-                percent={calculatedNumbers.yourPercentage}
-            />
-            <UserVersusCard
-                name={opponent?.name}
-                user={opponent?.id}
-                apm={calculatedNumbers.opponent}
-                percent={calculatedNumbers.opponentPercentage}
-            />
+            <Prompt when={!gameWon} message={() => "Your game is still being played! Are you sure you want to quit?"} />
+            <Flex>
+                <UserVersusCard
+                    name={"You"}
+                    user={id}
+                    apm={calculatedNumbers.you}
+                    percent={gameWon && youWon ? 100 : calculatedNumbers.yourPercentage}
+                    winner={gameWon && youWon}
+                />
+                <UserVersusCard
+                    name={opponent?.name}
+                    user={opponent?.id}
+                    apm={calculatedNumbers.opponent}
+                    percent={gameWon && !youWon ? 100 : calculatedNumbers.opponentPercentage}
+                    winner={gameWon && !youWon}
+                />
+            </Flex>
             <TypingHeader>Typing Prompt</TypingHeader>
             <TypingPrompt>{prompt}</TypingPrompt>
             <TextInput
@@ -109,6 +118,10 @@ const Game: React.FC<GameProps> = () => {
 
 const GameContainer = styled(Container)`
     margin-top: 1.25rem;
+`;
+
+const Flex = styled.div`
+    display: flex;
 `;
 
 const TypingHeader = styled.p`
