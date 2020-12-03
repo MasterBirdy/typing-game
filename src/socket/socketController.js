@@ -1,7 +1,7 @@
 import socketio from "socket.io";
 import socketConstants from "./socketConstants";
 import statusConstants from "./statusConstants";
-import Room from "../socket/Room";
+import Room from "./Room";
 import { v4 as uuidv4 } from "uuid";
 export const users = {};
 export const rooms = {};
