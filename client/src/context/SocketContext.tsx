@@ -18,7 +18,12 @@ import { socketConstants } from "../constants/socketConstants";
 import { useHistory } from "react-router-dom";
 import { ApplicationState } from "../store";
 import { OpponentData } from "../constants/gameConstants";
-const socket = io("http://localhost:5000");
+
+const ENDPOINT = `${
+    process.env.NODE_ENV === "production" ? process.env.REACT_APP_PROD_SOCKET : process.env.REACT_APP_DEV_SOCKET
+}`;
+
+const socket = io(ENDPOINT);
 
 export interface SocketContextInterface {
     id: string;
