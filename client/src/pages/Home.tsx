@@ -1,9 +1,7 @@
 import React, { useState, useContext } from "react";
 import { SocketContext } from "../context/SocketContext";
-import { Container } from "../elements/components";
 import { useDispatch, useSelector } from "react-redux";
 import { ApplicationState } from "../store";
-import { Status } from "../constants/statusConstants";
 import { below } from "../elements/utilities";
 import styled from "styled-components";
 import { setError } from "../actions/messageActions";

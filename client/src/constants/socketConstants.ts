@@ -5,7 +5,6 @@ interface SocketConstantInterface {
 export const socketConstants: SocketConstantInterface = {
     USERS_LIST: "users_list",
     ADD_USER: "add_user",
-    DELETE_USER: "delete_user",
     CHALLENGE_USER: "challenge_user",
     USER_CHALLENGED: "user_challenged",
     ACCEPT_CHALLENGE: "accept_challenge",

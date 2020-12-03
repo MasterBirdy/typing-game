@@ -13,15 +13,6 @@ export interface ApplicationState {
     game: GameStateInterface;
 }
 
-export type AllInterfaces = UserStateInterface | StatusStateInterface | MessageStateInterface | GameStateInterface;
-
-export enum ReduxTypes {
-    MESSAGE = "message",
-    STATUS = "status",
-    USERS = "users",
-    GAME = "game",
-}
-
 const reducer: Reducer<ApplicationState> = combineReducers<ApplicationState>({
     users: usersReducer,
     status: statusReducer,
@@ -35,6 +26,8 @@ const initialState: ApplicationState = {
     message: messageInitialState,
     game: gameInitialState,
 };
+
+// for future integration with thunk such as storing user information in a database
 
 const middleware = [thunk];
 

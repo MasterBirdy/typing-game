@@ -1,6 +1,5 @@
 import {
     TYPE_CHARACTER,
-    SET_TIME,
     GameActionTypes,
     UPDATE_TIME_GAME,
     UPDATE_OPPONENT_GAME_DATA,
@@ -40,12 +39,6 @@ export const intitalState: GameStateInterface = {
 
 export const gameReducer = (state = intitalState, action: GameActionTypes): GameStateInterface => {
     switch (action.type) {
-        case SET_TIME:
-            return {
-                ...state,
-                timeStarted: action.payload,
-                currentTime: action.payload + 1,
-            };
         case TYPE_CHARACTER:
             return {
                 ...state,
@@ -75,6 +68,8 @@ export const gameReducer = (state = intitalState, action: GameActionTypes): Game
                 timeStarted: action.payload.time,
                 currentTime: action.payload.time + 1,
                 typingPrompt: action.payload.prompt,
+                yourTyping: "",
+                opponentTyping: "",
                 yourActions: 0,
                 opponentActions: 0,
                 sliceNumber: 0,

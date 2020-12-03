@@ -11,7 +11,7 @@ export interface MessageWrapperProps {}
 const MessageWrapper: React.FC<MessageWrapperProps> = () => {
     const dispatch = useDispatch();
     const messageState = useSelector((state: ApplicationState) => state.message);
-    const { message, error, button, errorOnClick } = messageState;
+    const { message, error, button } = messageState;
 
     return (
         <Wrapper>

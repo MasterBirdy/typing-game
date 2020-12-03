@@ -55,6 +55,7 @@ const Game: React.FC<GameProps> = () => {
             clearInterval(intervalRef.current);
             context?.leaveGame();
         };
+        /* eslint-disable-next-line */
     }, []);
 
     useEffect(() => {
@@ -63,6 +64,7 @@ const Game: React.FC<GameProps> = () => {
         }
     }, [intervalRef, gameWon]);
 
+    // used to update only when the currentTime is updated
     let calculatedNumbers = useMemo(() => {
         return {
             you: Math.floor(yourActions / 5 / ((currentTime - timeStarted) / (1000 * 60))),
@@ -70,6 +72,7 @@ const Game: React.FC<GameProps> = () => {
             yourPercentage: Math.min(Math.floor((yourTyping.length / typingPrompt.length) * 100), 100),
             opponentPercentage: Math.min(Math.floor((opponentTyping.length / typingPrompt.length) * 100), 100),
         };
+        /* eslint-disable-next-line */
     }, [currentTime]);
 
     return (

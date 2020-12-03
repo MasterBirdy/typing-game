@@ -1,7 +1,6 @@
 import socketio from "socket.io";
 import socketConstants from "./socketConstants";
 import statusConstants from "./statusConstants";
-import typingPrompts from "./typingPrompts";
 import Room from "../socket/Room";
 import { v4 as uuidv4 } from "uuid";
 export const users = {};
@@ -19,12 +18,10 @@ export const socket = (app) => {
     const {
         USERS_LIST,
         ADD_USER,
-        DELETE_USER,
         CHALLENGE_USER,
         USER_CHALLENGED,
         ACCEPT_CHALLENGE,
         CANCEL_CHALLENGE,
-        SET_STATUS,
         UPDATE_GAME,
         CHANGE_NAME,
         SET_ID,
@@ -37,6 +34,12 @@ export const socket = (app) => {
         OPPONENT_LEFT,
     } = socketConstants;
     const { IDLE, WAITING, CHALLENGED, PLAYING } = statusConstants;
+
+    /**
+     * Fires off when a connection is made from a socket, which sets its ID and
+     * name, gives the joined socket a user list, and sends a notice to everyone
+     * that a new user has joined.
+     */
 
     io.on("connection", (socket) => {
         users[socket.id] = socket;
@@ -56,6 +59,13 @@ export const socket = (app) => {
             name: socket.handshake.name,
             status: socket.handshake.status,
         });
+
+        /**
+         * When a challenge is issued by a client, the server
+         * checks to see if the opponent is idle, and if so, emits
+         * the challenge to the opponent.
+         * @param invite ID of user
+         */
 
         socket.on(CHALLENGE_USER, (invite) => {
             const opponent = users[invite];
@@ -79,6 +89,11 @@ export const socket = (app) => {
             }
         });
 
+        /**
+         * Changes the name of a user.
+         * @param name New name
+         */
+
         socket.on(CHANGE_NAME, (name) => {
             socket.handshake.name = name;
             io.emit(
@@ -89,6 +104,12 @@ export const socket = (app) => {
                 }, {})
             );
         });
+
+        /**
+         * If the opponent is waiting, the server creates a new room,
+         * and places both clients in game mode.
+         * @param invite User ID
+         */
 
         socket.on(ACCEPT_CHALLENGE, (invite) => {
             const roomID = uuidv4();
@@ -105,6 +126,10 @@ export const socket = (app) => {
             }
         });
 
+        /**
+         * User cancels a cancel that they submitted.
+         */
+
         socket.on(CANCEL_CHALLENGE, () => {
             opponentLeaves("Your opponent has cancelled the challenge.");
             io.emit(
@@ -115,6 +140,12 @@ export const socket = (app) => {
                 }, {})
             );
         });
+
+        /**
+         * Places the new string and total actions for the user in the room.
+         * @param currentString The user's typing input
+         * @param actions Total number of actions that user has taken
+         */
 
         socket.on(TYPE_CHARACTER, (currentString, actions) => {
             const roomID = socket.handshake.room;
@@ -130,6 +161,11 @@ export const socket = (app) => {
             }
         });
 
+        /**
+         * Gives an update for the current data of the opponent to the client
+         * @param opponent Opponent's ID.
+         */
+
         socket.on(UPDATE_GAME, (opponent) => {
             const roomID = socket.handshake.room;
             if (rooms[roomID] && rooms[roomID].members[opponent]) {
@@ -139,6 +175,10 @@ export const socket = (app) => {
                 });
             }
         });
+
+        /**
+         * If a user leaves a game, this tells all users that their status has changed.
+         */
 
         socket.on(OPPONENT_LEFT, () => {
             opponentLeaves("Your opponent has left the room.");
@@ -150,6 +190,11 @@ export const socket = (app) => {
                 }, {})
             );
         });
+
+        /**
+         * On a user disconnect, has them leave the game/challenge, and then deletes
+         * their room if it exists and alerts all users of the user change.
+         */
 
         socket.on("disconnect", function () {
             opponentLeaves("Your opponent has disconnected.");
@@ -170,6 +215,11 @@ export const socket = (app) => {
                 }, {})
             );
         });
+
+        /**
+         * Helper function for when a user leaves or disconnects
+         * @param message String to be displayed in a message.
+         */
 
         function opponentLeaves(message) {
             if (socket.handshake.opponent && users[socket.handshake.opponent]) {

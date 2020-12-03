@@ -2,7 +2,6 @@ import * as React from "react";
 import styled from "styled-components";
 import { Container } from "../elements/components";
 import { Link } from "react-router-dom";
-import { below } from "../elements/utilities";
 import { toSvg } from "jdenticon";
 import { useSelector } from "react-redux";
 import { ApplicationState } from "../store";

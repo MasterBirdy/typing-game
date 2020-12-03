@@ -2,6 +2,14 @@ import React from "react";
 import { toSvg } from "jdenticon";
 import styled from "styled-components";
 
+/**
+ * @param user String ID
+ * @param name Name of user
+ * @param apm WPM of user's actions
+ * @param percent Percent of how much progress user has typed
+ * @param winner Boolean of whether this user has won
+ */
+
 export interface UserVersusCardProps {
     user?: string;
     name?: string;

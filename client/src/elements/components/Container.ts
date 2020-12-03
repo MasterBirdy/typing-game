@@ -5,6 +5,10 @@ interface ContainerProps {
     marginTop?: number;
 }
 
+/**
+ * Container that places a max width into a div.
+ */
+
 export const Container = styled.div<ContainerProps>`
     margin: 0 auto;
     padding: 0 2rem;

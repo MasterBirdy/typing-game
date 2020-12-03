@@ -4,6 +4,13 @@ import { toSvg } from "jdenticon";
 import { AiFillStar } from "react-icons/ai";
 import { Status } from "../constants/statusConstants";
 
+/**
+ * @param user User name
+ * @param clickHandler Function that fires when challenge button is clicked
+ * @param status Determines whether user can be challenged
+ * @param id User id
+ */
+
 export interface PlayerCardProps {
     user: string;
     clickHandler?: () => void;

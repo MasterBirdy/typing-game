@@ -1,5 +1,4 @@
 export const TYPE_CHARACTER = "TYPE_CHARACTER";
-export const SET_TIME = "SET_TIME";
 export const UPDATE_TIME_GAME = "UPDATE_TIME_GAME";
 export const UPDATE_OPPONENT_GAME_DATA = "UPDATE_OPPONENT_GAME_DATA";
 export const INCREMENT_ACTION_COUNTER = "INCREMENT_ACTION_COUNTER";
@@ -19,11 +18,6 @@ interface TypeCharacterAction {
         incorrect: boolean;
         yourTyping: string;
     };
-}
-
-interface SetTimeAction {
-    type: typeof SET_TIME;
-    payload: number;
 }
 
 interface UpdateTimeGameAction {
@@ -58,7 +52,6 @@ interface StopGameAction {
 
 export type GameActionTypes =
     | TypeCharacterAction
-    | SetTimeAction
     | UpdateTimeGameAction
     | UpdateOpponentGameDataAction
     | IncrementActionCounter

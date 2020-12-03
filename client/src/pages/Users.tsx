@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Container, Grid, GridItem } from "../elements/components";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { ApplicationState } from "../store";
 import PlayerCard from "../components/PlayerCard";
 import styled from "styled-components";

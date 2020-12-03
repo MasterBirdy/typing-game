@@ -1,7 +1,6 @@
 import { Status } from "./statusConstants";
 
 export const ADD_USER = "ADD_USER";
-export const DELETE_USER = "DELETE_USER";
 export const SET_USERS_LIST = "SET_USERS_LIST";
 
 export interface User {
@@ -15,14 +14,9 @@ interface AddUserAction {
     payload: User;
 }
 
-interface DeleteUserAction {
-    type: typeof DELETE_USER;
-    payload: string;
-}
-
 interface SetUsersListAction {
     type: typeof SET_USERS_LIST;
     payload: { [key: string]: User };
 }
 
-export type UserActionTypes = AddUserAction | DeleteUserAction | SetUsersListAction;
+export type UserActionTypes = AddUserAction | SetUsersListAction;

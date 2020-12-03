@@ -6,6 +6,11 @@ interface GridProps {
     columns?: number;
 }
 
+/**
+ * Creates a bootstrap like grid with a requested number
+ * of columns.
+ */
+
 export const Grid = styled.div<GridProps>`
     display: grid;
     margin-top: ${(props) => props.marginTop}rem;
@@ -21,6 +26,10 @@ interface GridItemProps {
     start?: string | number;
     span?: number;
 }
+/**
+ * Items in grid to determine how make space they
+ * take up in grid.
+ */
 
 export const GridItem = styled.div<GridItemProps>`
     grid-column: ${(props) => props.start} / span ${(props) => props.span};
