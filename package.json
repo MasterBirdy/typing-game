@@ -10,8 +10,9 @@
         "dev": "concurrently \"npm run server\" \"npm run client\"",
         "clean": "rm -rf build && mkdir build",
         "build-server": "babel -d ./build ./src -s",
+        "client-build": "npm run build --prefix client",
         "build": "npm run clean && npm run build-server",
-        "start": "npm run build && node ./build/server.js"
+        "start": "npm run client-build && npm run build && node ./build/server.js"
     },
     "author": "",
     "license": "ISC",
